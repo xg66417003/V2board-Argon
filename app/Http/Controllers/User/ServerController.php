@@ -55,4 +55,19 @@ class ServerController extends Controller
             'total' => $total
         ]);
     }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logFetchSeven(Request $request)
+    {
+        $serverLog = ServerLog::where('user_id', $request->session()->get('id'))
+            ->selectRaw("FROM_UNIXTIME(created_at,'%d') as created_at, (u+d) as ud")
+            ->where('created_at', '>=', strtotime(date('Y-m-d')) - 604800)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        return response()->json(['data' => $serverLog]);
+    }
 }
