@@ -62,11 +62,14 @@ class ServerController extends Controller
      */
     public function logFetchSeven(Request $request)
     {
-        $serverLog = ServerLog::where('user_id', $request->session()->get('id'))
-            ->selectRaw("FROM_UNIXTIME(created_at,'%d') as created_at, (u+d) as ud")
+        $serverLog = ServerLog::query()
+            ->where('user_id', $request->session()->get('id'))
+            ->selectRaw("FROM_UNIXTIME(created_at,'%m-%d') as date_time, SUM(u + d) as ud")
             ->where('created_at', '>=', strtotime(date('Y-m-d')) - 604800)
-            ->orderBy('created_at', 'DESC')
-            ->get();
+            ->groupBy('date_time')
+            ->orderBy('date_time')
+            ->get()
+            ->toArray();
 
         return response()->json(['data' => $serverLog]);
     }

@@ -47,8 +47,13 @@ class KnowledgeController extends Controller
                 'data' => $knowledge
             ]);
         }
+        $value = $request->input('value', '');
         $knowledges = Knowledge::select(['id', 'category', 'title', 'updated_at'])
             ->where('language', $request->input('language'))
+            ->when($value, function ($query) use ($value){
+                $query->where('title', 'like', '%'.$value.'%')
+                    ->orWhere('body', 'like', '%'.$value.'%');
+            })
             ->where('show', 1)
             ->orderBy('sort', 'ASC')
             ->get()
